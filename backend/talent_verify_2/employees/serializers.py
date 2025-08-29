@@ -101,6 +101,7 @@ class EmployeeHistorySerializer(serializers.ModelSerializer):
     positions = EmployeePositionSerializer(many=True, read_only=True)
     total_positions = serializers.SerializerMethodField()
     total_experience_days = serializers.SerializerMethodField()
+    company_name = serializers.CharField(source='company.name', read_only=True)
     
     class Meta:
         model = Employee

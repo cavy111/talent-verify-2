@@ -13,6 +13,7 @@ class RoleBasedPermission(permissions.BasePermission):
         try:
             profile = request.user.profile
             if not profile.is_active:
+                print(profile.is_active)
                 return False
                 
             # Super admin has all permissions
@@ -61,3 +62,42 @@ class CompanyDataPermission(permissions.BasePermission):
             return profile.company == obj.employee.company
             
         return False
+    
+# class SystemAdminPermission(permissions.BasePermission):
+#     """Permission for system administrators only"""
+    
+#     def has_permission(self, request, view):
+#         return (
+#             request.user and 
+#             request.user.is_authenticated and 
+#             request.user.is_system_admin
+#         )
+
+# class CompanyAdminPermission(permissions.BasePermission):
+#     """Permission for company administrators and system administrators"""
+    
+#     def has_permission(self, request, view):
+#         return (
+#             request.user and 
+#             request.user.is_authenticated and 
+#             (request.user.is_system_admin or request.user.is_company_admin)
+#         )
+
+# class CompanyDataPermission(permissions.BasePermission):
+#     """Permission to access company data - users can only access their company's data"""
+    
+#     def has_permission(self, request, view):
+#         return request.user and request.user.is_authenticated
+    
+#     def has_object_permission(self, request, view, obj):
+#         user = request.user
+        
+#         # System admins can access everything
+#         if user.is_system_admin:
+#             return True
+        
+#         # Users can only access data from their own company
+#         if hasattr(obj, 'company'):
+#             return obj.company == user.company
+        
+#         return False

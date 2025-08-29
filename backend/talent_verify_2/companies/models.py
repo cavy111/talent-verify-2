@@ -1,6 +1,5 @@
 # backend/companies/models.py
 from django.db import models
-from django.contrib.auth.models import User
 
 class Company(models.Model):
     name = models.CharField(max_length=255)
@@ -13,7 +12,7 @@ class Company(models.Model):
     employee_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_by = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, related_name='created_companies')
 
     class Meta:
         verbose_name_plural = "Companies"

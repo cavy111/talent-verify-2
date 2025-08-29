@@ -21,6 +21,7 @@ import {
   Alert
 } from '@mui/material';
 import { CompanyService, AuthService } from '../services/api';
+import NavBar from './NavBar';
 
 interface Company {
   id: number;
@@ -34,11 +35,16 @@ interface Company {
   employee_count: number;
 }
 
+interface Profile {
+  role_name: string
+}
+
 const Companies: React.FC = () => {
     const [companies, setCompanies] = useState<Company[]>([]);
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('')
     const [formData, setFormData] = useState({
         name: '',
         registration_number: '',
@@ -49,11 +55,22 @@ const Companies: React.FC = () => {
         registration_date: '',
         employee_count: 0
     });
+    const [profile, setProfile] = useState<Profile | null>(null)
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchCompanies();
+        fetchProfile()
     }, []);
+
+    const fetchProfile = async() =>{
+        try{
+          const response = await AuthService.getProfile()
+          setProfile(response)
+        }catch(e){
+          console.log('error fetching profile', e);
+        }
+      }
 
     const fetchCompanies = async () => {
     try {
@@ -80,6 +97,8 @@ const Companies: React.FC = () => {
         employee_count: 0
       });
       fetchCompanies();
+      setError('')
+      setSuccess('Company added successfully')
     } catch (err) {
       setError('Failed to create company');
     } finally {
@@ -94,22 +113,7 @@ const Companies: React.FC = () => {
 
   return (
     <>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Companies
-          </Typography>
-          <Button color="inherit" onClick={() => navigate('/dashboard')}>
-            Dashboard
-          </Button>
-          <Button color="inherit" onClick={() => navigate('/employees')}>
-            Employees
-          </Button>
-          <Button color="inherit" onClick={handleLogout}>
-            Logout
-          </Button>
-        </Toolbar>
-      </AppBar>
+      <NavBar role_name={profile?.role_name || ''} page='Companies'/>
 
       <Container sx={{ mt: 4 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -120,6 +124,7 @@ const Companies: React.FC = () => {
         </div>
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
         <TableContainer component={Paper}>
           <Table>

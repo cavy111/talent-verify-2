@@ -1,6 +1,20 @@
 from django.db import models
-from django.contrib.auth.models import User
-from companies.models import Company
+from users.models import User
+
+class UserInvitation(models.Model):
+    """Track user invitations and registration process"""
+    email = models.EmailField()
+    invited_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_invitations')
+    company = models.ForeignKey('companies.Company', on_delete=models.CASCADE, null=True, blank=True)
+    is_company_admin = models.BooleanField(default=False)
+    invitation_token = models.CharField(max_length=100, unique=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+    used_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Invitation for {self.email} by {self.invited_by.get_full_name()}"
 
 class UserRole(models.Model):
     ROLE_CHOICES = [
@@ -22,7 +36,7 @@ class UserRole(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     role = models.ForeignKey(UserRole, on_delete=models.SET_NULL, null=True)
-    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
+    company = models.ForeignKey('companies.Company', on_delete=models.SET_NULL, null=True, blank=True)
     phone = models.CharField(max_length=20, blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
